@@ -1,5 +1,4 @@
 # PST-2023
-
 Hex codes for all the speeds
 const unsigned int step1 = 0x62;
 const unsigned int step2 = 0x72;
