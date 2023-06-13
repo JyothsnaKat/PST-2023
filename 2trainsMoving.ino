@@ -1,6 +1,32 @@
 #include <MCP23017.h>
+#include "Adafruit_LiquidCrystal.h"
+
+// Connect via i2c, default address #0 (A0-A2 not jumpered)
+Adafruit_LiquidCrystal lcd(0);
+//intcapA
+int trainpos = 0;
+const unsigned int d22 = 0x7F;
+const unsigned int d21 = 0x2F;
+const unsigned int d13 = 0xDF;
+const unsigned int d12 = 0xEF;
+const unsigned int d11 = 0xF7;
+const unsigned int d10 = 0xFB;
+const unsigned int d9 = 0xFD;
+const unsigned int d8 = 0xFE;
+
+//intcapB
+const unsigned int d7 = 0x7F;
+const unsigned int d6 = 0x2F;
+const unsigned int d5 = 0xDF;
+const unsigned int d4 = 0xEF;
+const unsigned int d3 = 0xF7;
+const unsigned int d2 = 0xFB;
+const unsigned int d1 = 0xFD;
+const unsigned int d0 = 0xFE;
+const unsigned int na = 0xFF;
 
 const int Track = 7;
+const int buzzerPin = 8;
 #define INT0  2
 #define INT1  3
 MCP23017 mcp = MCP23017(0x26);
@@ -44,6 +70,7 @@ pinMode(Track, OUTPUT);
 
  init_mcp();
  init_interrupts();
+ pinMode(buzzerPin, OUTPUT);
 
 
 }
@@ -57,9 +84,13 @@ void loop() {
 //  delay(500);
 //  on_int0_change();
 //  on_int1_change();
+trainpos = 1;
+//CC_send_command(DCCtrain1,speed13,1);
+//lcd.setCursor(0, 1);
+trainpos = 3;
 
-DCC_send_command(DCCtrain1,speed15,1);
-DCC_send_command(DCCtrain3,DCCinst_forward,1);
+DCC_send_command(DCCtrain3,step13,1);
+
 //  delay(500);
 }
 
@@ -100,6 +131,7 @@ void init_interrupts() {
 }
 
 void on_int0_change() {
+
    // In your code, you might want to move this logic out of the interrupt routine
    // (for instance, by setting a flag and checking this flag in your main-loop)
    // This will prevent overhead.
@@ -111,8 +143,12 @@ void on_int0_change() {
   if (sensor_data == 0xFB) {
       // Sensor data is 11111101
       Serial.println("Sensor data is 11111101");
-      DCC_send_command(DCCtrain1,0x00,1);
+      //DCC_send_command(DCCtrain1,0x00,1);
       DCC_send_command(DCCtrain3,0x00,1);
+      tone(buzzerPin, 50);
+      delay(50);
+      noTone(buzzerPin);
+     // delay(100);
 
     // digitalWrite(Track,LOW);
     delay(1000);
@@ -120,10 +156,69 @@ void on_int0_change() {
       // delay(1000);
       // digitalWrite(Track, HIGH); // Resume the train
    }
-
+  // lcd.setCursor(0,1);
+   if (sensor_data == 0x7F)
+   {
+    /// lcd.print("Train detected by D7");
+     Serial.println("Train detected by D7");
+   }
+   else if(sensor_data == 0x2F)
+   {
+     lcd.print("Train detected by D6");
+     Serial.print("Train ");
+    Serial.print(trainpos);
+     Serial.println(" detected by D6");
+   }
+   else if(sensor_data == 0xDF)
+   {
+    lcd.print("Train detected by D5");
+     Serial.print("Train ");
+   Serial.print(trainpos);
+     Serial.println(" detected by D5");
+   }
+  else if(sensor_data == 0xEF)
+  {
+    lcd.print("Train detected by D4");
+     Serial.print("Train ");
+    Serial.print(trainpos);
+     Serial.println(" detected by D4");
+  }
+  else if(sensor_data == 0xF7)
+  {
+    lcd.print("Train detected by D3");
+     Serial.print("Train ");
+   Serial.print(trainpos);
+     Serial.println(" detected by D3");
+  }
+  else if(sensor_data == 0xFB)
+  {
+    lcd.print("Train detected by D2");
+     Serial.print("Train ");
+      Serial.print(trainpos);
+     Serial.println(" detected by D2");
+  }
+  else if(sensor_data == 0xFD)
+  {
+    lcd.print("Train detected by D1");
+     Serial.print("Train ");
+  Serial.print(trainpos);
+     Serial.println(" detected by D1");
+  }
+  else if(sensor_data == 0xFE)
+  {
+    lcd.print("Train detected by D0");
+     Serial.print("Train ");
+     Serial.print(trainpos);
+     Serial.println(" detected by D0");
+  }
+  else
+  {
+    lcd.clear();
+  }
 }
 
 void on_int1_change() {
+  lcd.setCursor(0,1);
    // In your code, you might want to move this logic out of the interrupt routine
    // (for instance, by setting a flag and checking this flag in your main-loop)
    // This will prevent overhead.
@@ -135,13 +230,76 @@ void on_int1_change() {
   if (sensor_data == 0xEF) {
   // // Sensor data is 11111101
     Serial.println("Sensor data is blah");
-    DCC_send_command(DCCtrain1,0x00,1);
+    //DCC_send_command(DCCtrain1,0x00,1);
       DCC_send_command(DCCtrain3,0x00,1);
+            tone(buzzerPin, 50);
+      delay(50);
+      noTone(buzzerPin);
+      //delay(100);
     // digitalWrite(Track,LOW);
     delay(1000);  
     // digitalWrite(Track,HIGH);
     }   
-
+   if (sensor_data == 0x7F)
+   {
+     lcd.print("Train detected by D22");
+Serial.print("Train ");
+    Serial.print(trainpos);
+     Serial.println(" detected by D22");
+   }
+   else if(sensor_data == 0x2F)
+   {
+     lcd.print("Train detected by D21");
+    Serial.print("Train ");
+    Serial.print(trainpos);
+     Serial.println(" detected by D21");
+   }
+   else if(sensor_data == 0xDF)
+   {
+    lcd.print("Train detected by D13");
+    Serial.print("Train ");
+    Serial.print(trainpos);
+     Serial.println(" detected by D13");
+   }
+  else if(sensor_data == 0xEF)
+  {
+    lcd.print("Train detected by D12");
+    Serial.print("Train ");
+    Serial.print(trainpos);
+     Serial.println(" detected by D12");
+  }
+  else if(sensor_data == 0xF7)
+  {
+    lcd.print("Train detected by D11");
+     Serial.print("Train ");
+   Serial.print(trainpos);
+     Serial.println(" detected by D11");
+  }
+  else if(sensor_data == 0xFB)
+  {
+    lcd.print("Train detected by D10");
+     Serial.print("Train ");
+     Serial.print(trainpos);
+     Serial.println(" detected by D10");
+  }
+  else if(sensor_data == 0xFD)
+  {
+    lcd.print("Train detected by D9");
+   Serial.print("Train ");
+    Serial.print(trainpos);
+     Serial.println(" detected by D9");
+  }
+  else if(sensor_data == 0xFE)
+  {
+    lcd.print("Train detected by D8");
+    Serial.print("Train ");
+    Serial.print(trainpos);
+     Serial.println(" detected by D8");
+  }
+    else
+  {
+    lcd.clear();
+  }
   //  Serial.println();
 }
 
@@ -154,6 +312,9 @@ void DCC_send_command(unsigned int address, unsigned int inst, unsigned int repe
     //calculate error detection byte with xor
     error = address ^ inst;
     //combine packet bits in basic DCC format
+
+
+
     command = (prefix<<28)|(address<<19)|(inst<<10)|((error)<<1)|0x01;
     //printf("\n\r %llx \n\r",command);
     int i=0;
